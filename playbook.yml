@@ -1,10 +1,5 @@
 ---
-- hosts: all
-  become: true
-  roles:
-   - role: commons
-
-- hosts: netdata
+- hosts: localhost
   become: true
   roles:
    - role: netdata
