@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: true
+  roles:
+   - role: commons
+
+- hosts: netdata
+  become: true
+  roles:
+   - role: netdata
