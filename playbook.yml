@@ -3,3 +3,8 @@
   become: yes
   roles:
    - netdata
+
+- hosts: all
+  become: yes
+  roles:
+   - nginx

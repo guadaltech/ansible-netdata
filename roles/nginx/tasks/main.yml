@@ -1,0 +1,11 @@
+---
+- name: Install nginx
+  apt:
+    pkg:
+    - nginx
+
+- name: Restart nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: true
