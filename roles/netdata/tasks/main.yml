@@ -3,3 +3,19 @@
   apt:
     pkg:
     - netdata
+
+- name: Ensure configuration directory exists
+  file:
+    name: "{{ netdata_conf_dir }}"
+    state: directory
+
+- name: Copy netdata configuration
+  template:
+    src: netdata.conf
+    dest: "{{ netdata_conf }}"
+
+- name: Restart netdata
+  service:
+    name: netdata
+    state: restarted
+    enabled: true

@@ -14,3 +14,8 @@ netdata_deps:
   - automake
   - pkg-config
 netdata_version: v1.4.0
+netdata_service_name: "netdata"
+
+# Fichero de configuración
+netdata_conf_dir: "/etc/netdata"
+netdata_conf: "{{ netdata_conf_dir }}/netdata.conf"
