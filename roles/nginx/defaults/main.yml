@@ -1,0 +1,5 @@
+nginx_user: www-data
+nginx_default_site_root: /usr/share/nginx/html
+nginx_log_dirname: /var/log/nginx
+nginx_access_log_filename: access.log
+nginx_error_log_filename: error.log
