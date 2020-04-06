@@ -4,12 +4,6 @@
     pkg:
     - nginx
 
-- name: Enable the nginx default site
-  file: path=/etc/nginx/sites-enabled/default state=link src=/etc/nginx/sites-available/default
-  when: nginx_default_site_enabled
-  notify:
-   - reload nginx
-
 - name: Restart nginx
   service:
     name: nginx

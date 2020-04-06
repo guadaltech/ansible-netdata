@@ -14,12 +14,23 @@
     src: netdata.conf
     dest: "{{ netdata_conf }}"
 
-#- name: Configure alarms
-#  template:
-#    src: health_alarm_notify.conf
-#    dest: /etc/netdata/health_alarm_notify.conf
-#    owner: netdata
-#    mode: '0644'
+- name: Configure alarms discord
+  template:
+    src: health_alarm_notify.conf
+    dest: /etc/netdata/health_alarm_notify.conf
+    owner: netdata
+    mode: '0644'
+
+- name: Configure alarms cpu
+  template:
+    src: cpu.conf
+    dest: /etc/netdata/health.d/cpu.conf
+
+- name: Configure alarms load
+  template:
+    src: load.conf
+    dest: /etc/netdata/health.d/load.conf 
+
 
 - name: Restart netdata
   service:
