@@ -31,6 +31,10 @@
     src: load.conf
     dest: /etc/netdata/health.d/load.conf 
 
+- name: Configure alarms disks
+  template:
+    src: disks.conf
+    dest: /etc/netdata/health.d/disks.conf
 
 - name: Restart netdata
   service:
