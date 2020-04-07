@@ -19,3 +19,7 @@ netdata_service_name: "netdata"
 # Fichero de configuración
 netdata_conf_dir: "/etc/netdata"
 netdata_conf: "{{ netdata_conf_dir }}/netdata.conf"
+
+netdata_git_repo: 'https://github.com/netdata/netdata.git'
+netdata_source_dir: '/usr/local/src/netdata'
+netdata_installer: './netdata-installer.sh'

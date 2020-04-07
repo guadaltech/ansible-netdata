@@ -4,23 +4,38 @@
     pkg:
     - netdata
 
-- name: Install pre-requisites packages
-  package:
-    name: "{{ item }}"
-    state: present
+- name: install prerequisites
+  apt: name={{ item }} state=present
   with_items:
+    - zlib1g-dev
+    - uuid-dev
+    - libmnl-dev
+    - gcc
+    - make
+    - git
     - autoconf
     - autoconf-archive
     - autogen
     - automake
-    - gcc
-    - git
-    - libmnl-dev
-    - make
     - pkg-config
-    - uuid-dev
-    - zlib1g-dev
+    - curl
+    - lm-sensors
+    - python-yaml
+    - python-psycopg2
+    - libmnl0
+    - netcat
 
+- name: Create required directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0750
+    owner: netdata
+    group: netdata
+  become: true
+  with_items:
+    - /var/cache/netdata
+    - /var/log/netdata
 
 - name: Ensure configuration directory exists
   file:
