@@ -1,50 +1,26 @@
 ---
-#- name: Install netdata
-#  apt:
-#    pkg:
-#    - netdata
+- name: Install netdata
+  apt:
+    pkg:
+    - netdata
 
-- name: Check if netdata is installed
-  command: test -x /usr/sbin/netdata
-  register: netdata_present
-  ignore_errors: yes
-  changed_when: False # Discard "changed", only checking if netdata is installed
-
-- name: Install dependencies for RedHat
-  yum:
+- name: Install pre-requisites packages
+  package:
     name: "{{ item }}"
     state: present
   with_items:
-    - MySQL-python
-    - PyYAML
     - autoconf
+    - autoconf-archive
+    - autogen
     - automake
-    - curl
     - gcc
     - git
-    - libmnl-devel
-    - libuuid-devel
-    - lm_sensors
+    - libmnl-dev
     - make
-    - nc
-    - pkgconfig
-    - python
-    - python-psycopg2
-    - zlib-devel
-  when: netdata_present | failed
+    - pkg-config
+    - uuid-dev
+    - zlib1g-dev
 
-- name: Clone netdata repo for install files
-  git:
-    repo: https://github.com/firehol/netdata.git
-    depth: "1"
-    dest: /opt/netdata
-  when: netdata_present | failed
-
-- name: Build and install netdata
-  shell: ./netdata-installer.sh --dont-wait
-  args:
-    chdir: /opt/netdata
-  when: netdata_present | failed
 
 - name: Ensure configuration directory exists
   file:
@@ -60,8 +36,6 @@
   template:
     src: health_alarm_notify.conf
     dest: /etc/netdata/health_alarm_notify.conf
-    owner: netdata
-    mode: '0644'
 
 - name: Configure alarms cpu
   template:
