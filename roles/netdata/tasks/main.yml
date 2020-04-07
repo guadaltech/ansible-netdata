@@ -1,8 +1,50 @@
 ---
-- name: Install netdata
-  apt:
-    pkg:
-    - netdata
+#- name: Install netdata
+#  apt:
+#    pkg:
+#    - netdata
+
+- name: Check if netdata is installed
+  command: test -x /usr/sbin/netdata
+  register: netdata_present
+  ignore_errors: yes
+  changed_when: False # Discard "changed", only checking if netdata is installed
+
+- name: Install dependencies for RedHat
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - MySQL-python
+    - PyYAML
+    - autoconf
+    - automake
+    - curl
+    - gcc
+    - git
+    - libmnl-devel
+    - libuuid-devel
+    - lm_sensors
+    - make
+    - nc
+    - pkgconfig
+    - python
+    - python-psycopg2
+    - zlib-devel
+  when: netdata_present | failed
+
+- name: Clone netdata repo for install files
+  git:
+    repo: https://github.com/firehol/netdata.git
+    depth: "1"
+    dest: /opt/netdata
+  when: netdata_present | failed
+
+- name: Build and install netdata
+  shell: ./netdata-installer.sh --dont-wait
+  args:
+    chdir: /opt/netdata
+  when: netdata_present | failed
 
 - name: Ensure configuration directory exists
   file:
@@ -35,6 +77,11 @@
   template:
     src: disks.conf
     dest: /etc/netdata/health.d/disks.conf
+
+- name: Configure dbengine
+  template:
+    src: dbengine.conf
+    dest: /etc/netdata/health.d/dbengine.conf
 
 - name: Restart netdata
   service:
