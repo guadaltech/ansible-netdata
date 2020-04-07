@@ -57,6 +57,11 @@
     src: dbengine.conf
     dest: /etc/netdata/health.d/dbengine.conf
 
+- name: Creates directory dbengine
+  file:
+    path: /var/cache/netdata/dbengine
+    state: directory    
+
 - name: Restart netdata
   service:
     name: netdata
