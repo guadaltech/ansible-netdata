@@ -16,6 +16,9 @@
 - name: Create the link for site enabled specific configurations
   file: path=/etc/nginx/sites-enabled/netdata.conf state=link src=/etc/nginx/sites-available/netdata.conf
 
+- name: Copy htpasswd
+  template: src=htpasswd dest=/etc/nginx/htpasswd
+
 - name: Restart nginx
   service:
     name: nginx
