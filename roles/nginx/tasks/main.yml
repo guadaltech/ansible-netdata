@@ -4,6 +4,18 @@
     pkg:
     - nginx
 
+- name: Create the directories for site specific configurations
+  file: path=/etc/nginx/{{ item }} state=directory owner=root group=root mode=0755
+  with_items:
+    - "sites-available"
+    - "sites-enabled"
+
+- name: Copy the nginx default site configuration file 
+  template: src=netdata.conf dest=/etc/nginx/sites-available/netdata.conf
+
+- name: Create the link for site enabled specific configurations
+  file: path=/etc/nginx/sites-enabled/netdata.conf state=link src=/etc/nginx/sites-available/netdata.conf
+
 - name: Restart nginx
   service:
     name: nginx
