@@ -9,6 +9,10 @@
   with_items:
     - zlib1g-dev
     - uuid-dev
+    - libuv1-dev
+    - liblz4-dev
+    - libjudy-dev
+    - libssl-dev
     - libmnl-dev
     - gcc
     - make
@@ -20,6 +24,8 @@
     - pkg-config
     - curl
     - lm-sensors
+    - python
+    - cmake
     - python-yaml
     - python-psycopg2
     - libmnl0
