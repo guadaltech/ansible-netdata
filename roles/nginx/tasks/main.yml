@@ -1,8 +1,10 @@
 ---
-- name: Install nginx
+- name: Install packages with apt
   apt:
     pkg:
     - nginx
+    - python-pip
+    - python-setuptools
 
 - name: Create the directories for site specific configurations
   file: path=/etc/nginx/{{ item }} state=directory owner=root group=root mode=0755
@@ -16,8 +18,21 @@
 - name: Create the link for site enabled specific configurations
   file: path=/etc/nginx/sites-enabled/netdata.conf state=link src=/etc/nginx/sites-available/netdata.conf
 
-- name: Copy htpasswd
-  template: src=htpasswd dest=/etc/nginx/htpasswd
+- name: Install passlibb with pip
+  pip: name=passlib
+
+- name: Generate htpasswd
+  htpasswd:
+    path: /etc/nginx/htpasswd
+    name: "{{ auth_user }}"
+    password: "{{ auth_user }}"
+    owner: www-data
+    mode: 0640
+
+- name: Nginx delete default conf
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
 
 - name: Restart nginx
   service:

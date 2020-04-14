@@ -1,4 +1,6 @@
 ---
+
+nginx_port: 80
 root_group: root
 nginx_conf_template: "netdata.conf"
 nginx_conf_path: /etc/nginx/conf.d
