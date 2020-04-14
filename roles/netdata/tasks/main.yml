@@ -1,0 +1,98 @@
+---
+#- name: Install netdata
+#  apt:
+#    pkg:
+#    - netdata
+
+- name: install prerequisites
+  apt: name={{ item }} state=present
+  with_items:
+    - zlib1g-dev
+    - uuid-dev
+    - libuv1-dev
+    - liblz4-dev
+    - libjudy-dev
+    - libssl-dev
+    - libmnl-dev
+    - gcc
+    - make
+    - git
+    - autoconf
+    - autoconf-archive
+    - autogen
+    - automake
+    - pkg-config
+    - curl
+    - lm-sensors
+    - python
+    - cmake
+    - python-yaml
+    - python-psycopg2
+    - libmnl0
+    - netcat
+
+- name: download netdata software
+  get_url:
+    url: https://my-netdata.io/kickstart.sh
+    dest: /usr/local/src/
+
+- name: install netdata
+  shell: bash /usr/local/src/kickstart.sh --dont-wait
+
+- name: Create required directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0750
+    owner: netdata
+    group: netdata
+  become: true
+  with_items:
+    - /var/cache/netdata
+    - /var/log/netdata
+
+- name: Ensure configuration directory exists
+  file:
+    name: "{{ netdata_conf_dir }}"
+    state: directory
+
+- name: Copy netdata configuration
+  template:
+    src: netdata.conf
+    dest: "{{ netdata_conf }}"
+
+- name: Configure alarms discord
+  template:
+    src: health_alarm_notify.conf
+    dest: /etc/netdata/health_alarm_notify.conf
+
+- name: Configure alarms cpu
+  template:
+    src: cpu.conf
+    dest: /etc/netdata/health.d/cpu.conf
+
+- name: Configure alarms load
+  template:
+    src: load.conf
+    dest: /etc/netdata/health.d/load.conf 
+
+- name: Configure alarms disks
+  template:
+    src: disks.conf
+    dest: /etc/netdata/health.d/disks.conf
+
+- name: Configure dbengine
+  template:
+    src: dbengine.conf
+    dest: /etc/netdata/health.d/dbengine.conf
+
+- name: Creates directory dbengine
+  file:
+    path: /var/cache/netdata/dbengine
+    state: directory    
+
+- name: Restart netdata
+  service:
+    name: netdata
+    state: restarted
+    enabled: true
