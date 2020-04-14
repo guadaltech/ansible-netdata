@@ -67,22 +67,22 @@
     dest: /etc/netdata/health_alarm_notify.conf
 
 - name: Configure alarms cpu
-  template:
+  copy:
     src: cpu.conf
     dest: /etc/netdata/health.d/cpu.conf
 
 - name: Configure alarms load
-  template:
+  copy:
     src: load.conf
     dest: /etc/netdata/health.d/load.conf 
 
 - name: Configure alarms disks
-  template:
+  copy:
     src: disks.conf
     dest: /etc/netdata/health.d/disks.conf
 
 - name: Configure dbengine
-  template:
+  copy:
     src: dbengine.conf
     dest: /etc/netdata/health.d/dbengine.conf
 
