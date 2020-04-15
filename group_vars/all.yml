@@ -1,8 +1,8 @@
 ---
 
 domain_mode: false
-domain: example.org
-server_name: netdata.example.org
+domain: example.com
+server_name: netdata.example.com
 
 auth_user: netdata
 auth_pass: netdata

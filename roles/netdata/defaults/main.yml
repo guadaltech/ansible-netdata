@@ -23,3 +23,8 @@ netdata_conf: "{{ netdata_conf_dir }}/netdata.conf"
 netdata_git_repo: 'https://github.com/netdata/netdata.git'
 netdata_source_dir: '/usr/local/src/netdata'
 netdata_installer: './netdata-installer.sh'
+
+# Discord
+discord: true
+discord_webhook_url: https://discordapp.com/api/webhooks/696642091266211860/Ao1SO5Zv8ZHWqfrfNVQGi9mMbdjfy_l9CG5A4W_PR2MoGl0DfqGDgNNSWL79sRViig2U
+
