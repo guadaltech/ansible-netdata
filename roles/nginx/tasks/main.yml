@@ -73,6 +73,7 @@
       && ln -sf /usr/local/modules /etc/nginx/modules \
       && mkdir -p /run/nginx/ \
       && mkdir -p /etc/nginx/ctpp/ \
+      && rm -rf /etc/nginx/ctpp/* \
       && mkdir -p mkdir /run/nginx/ \
       && mkdir -p /var/log/nginx/ \
       && chown www-data:www-data /var/log/nginx
@@ -94,13 +95,15 @@
 
 - name: login.html
   copy:
-    src: login.html.ct2
-    dest: /etc/nginx/ctpp/login.html.ct2
+    src: login.html
+    dest: /etc/nginx/ctpp/login.html
 
-- name: html
-  copy:
-    src: index.html
-    dest: /etc/nginx/html/
+- name: login.html.ct2
+  shell:
+    cmd: |
+      cd /etc/nginx/ctpp/ \
+      && ctpp2c login.html login.html.ct2 \
+      && chown www-data:www-data login.html.ct2
 
 - name: favicon
   copy:
@@ -111,12 +114,9 @@
   file:
    path: /etc/nginx
    state: directory
-   mode: 0644
+   mode: 0765
    owner: www-data
    group: www-data
-
-- name: Cambio permisos
-  shell: chown -R www-data:www-data /etc/nginx
 
 - name: Add service
   copy:
