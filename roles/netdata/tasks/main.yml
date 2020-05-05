@@ -30,6 +30,54 @@
     - python-psycopg2
     - libmnl0
     - netcat
+    - curl
+    - rsyslog
+    - apt-transport-https
+    - python2.7
+    - python-pip
+    - python-jinja2
+    - git
+    - nano
+    - procps
+    - wget
+    - cmake
+    - make
+    - build-essential
+    - libpcre3
+    - libpcre3-dev
+    - libssl-dev
+    - zlibc
+    - zlib1g
+    - zlib1g-dev
+    - libgeoip-dev
+    - pkg-config
+    - libjansson-dev
+    - bison
+    - libexpat1-dev
+    - expect
+    - libgd-dev
+    - gettext
+    - libjansson-dev
+    - libjpeg-dev
+    - libc6-dev
+    - libc-dev-bin
+    - linux-headers-amd64
+    - libopenjp2-7-dev
+    - libldap2-dev
+    - libghc-regex-pcre-dev
+    - libperl-dev
+    - libreadline-dev
+    - libsqlite0-dev
+    - libghc-zlib-dev
+    - libctpp2-2v5
+    - ctpp2-utils
+    - libctpp2-dev
+    - libgd-dev
+    - gettext
+    - gettext-base
+    - libint-dev
+    - apache2-utils
+    - pax-utils
 
 - name: download netdata software
   get_url:
@@ -91,8 +139,8 @@
     path: /var/cache/netdata/dbengine
     state: directory    
 
-- name: Restart netdata
-  service:
-    name: netdata
-    state: restarted
-    enabled: true
+#- name: Restart netdata
+#  service:
+#    name: netdata
+#    state: restarted
+#    enabled: true
