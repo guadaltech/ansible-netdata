@@ -12,12 +12,65 @@
   become: true
   with_items:
     - /usr/src
+    - /var/cache/nginx
+    - /run/nginx/
+    - /etc/nginx/ctpp/
+    - /var/log/nginx/
 
-- name: Nginx.
-  shell: cd /usr/src && git clone --recursive https://github.com/Code-Mirror/ctpp2.git && git clone --recursive https://github.com/Code-Mirror/libjwt.git && git clone --recursive https://github.com/Code-Mirror/nginx.git && mkdir -p /usr/src/nginx/modules
+- name: Repos
+  git: repo=https://github.com/Code-Mirror/libjwt.git
+       dest=/usr/src/libjwt
+       recursive=yes
+       
+  git: repo=https://github.com/Code-Mirror/nginx.git
+       dest=/usr/src/nginx
+       recursive=yes
 
-- name: Modules
-  shell: cd /usr/src/nginx/modules && git clone --recursive https://github.com/Code-Mirror/set-misc-nginx-module.git && git clone --recursive https://github.com/Code-Mirror/form-input-nginx-module.git && git clone --recursive https://github.com/Code-Mirror/encrypted-session-nginx-module.git && git clone --recursive https://github.com/Code-Mirror/echo-nginx-module.git && git clone --recursive https://github.com/Code-Mirror/ngx_ctpp2.git && git clone --recursive https://github.com/Code-Mirror/ngx_http_captcha_module.git && git clone --recursive https://github.com/Code-Mirror/headers-more-nginx-module.git && git clone --recursive https://github.com/Code-Mirror/nginx-sticky-module-ng.git
+  git: repo=https://github.com/Code-Mirror/ctpp2.git
+       dest=/usr/src/ctpp2
+       recursive=yes
+
+- name: Create required directories
+  file:
+    path: /usr/src/nginx/modules
+    state: directory
+    mode: 0750
+    owner: vagrant
+    group: vagrant
+  become: true
+
+- name: Repos Modules
+  git: repo=https://github.com/Code-Mirror/set-misc-nginx-module.git
+       dest=/usr/src/nginx/modules/set-misc-nginx-module
+       recursive=yes
+
+  git: repo=https://github.com/Code-Mirror/form-input-nginx-module.git
+       dest=/usr/src/nginx/modules/form-input-nginx-module
+       recursive=yes
+
+  git: repo=https://github.com/Code-Mirror/encrypted-session-nginx-module.git
+       dest=/usr/src/nginx/modules/encrypted-session-nginx-module
+       recursive=yes
+
+  git: repo=https://github.com/Code-Mirror/echo-nginx-module.git
+       dest=/usr/src/nginx/modules/echo-nginx-module
+       recursive=yes
+
+  git: repo=https://github.com/Code-Mirror/ngx_ctpp2.git
+       dest=/usr/src/nginx/modules/ngx_ctpp2
+       recursive=yes
+
+  git: repo=https://github.com/Code-Mirror/ngx_http_captcha_module.git
+       dest=/usr/src/nginx/modules/ngx_http_captcha_module
+       recursive=yes
+
+  git: repo=https://github.com/Code-Mirror/headers-more-nginx-module.git
+       dest=/usr/src/nginx/modules/headers-more-nginx-module
+       recursive=yes
+
+  git: repo=https://github.com/Code-Mirror/nginx-sticky-module-ng.git
+       dest=/usr/src/nginx/modules/nginx-sticky-module-ng
+       recursive=yes
 
 - name: Compile libjwt
   shell: cd /usr/src/libjwt && cmake . -DBUILD_SHARED_LIBS=true && make -j"$(nproc)" install 
@@ -61,21 +114,17 @@
       --with-stream_ssl_preread_module \
       --with-threads && make -j"$(nproc)" install
 
+
 - name: Enlaces simbolicos 
   shell:
     cmd: |
       rm -rf /etc/nginx/ctpp/* \
       && rm -rf /usr/src \
-      && mkdir -p /var/cache/nginx \
       && (strip /usr/local/bin/* /usr/local/lib/*.so /usr/local/modules/*.so /usr/sbin/nginx || true) \
       && echo $(scanelf --needed --nobanner --format '%n#p' --recursive /usr/sbin/nginx /usr/local | tr ',' '\n' | sort -u | awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }') \
       && rm -rf /var/lib/apt/lists/* \
       && ln -sf /usr/local/modules /etc/nginx/modules \
-      && mkdir -p /run/nginx/ \
-      && mkdir -p /etc/nginx/ctpp/ \
       && rm -rf /etc/nginx/ctpp/* \
-      && mkdir -p /run/nginx/ \
-      && mkdir -p /var/log/nginx/ \
       && chown www-data:www-data /var/log/nginx
 
 
@@ -102,8 +151,8 @@
   shell:
     cmd: |
       cd /etc/nginx/ctpp/ \
-      && ctpp2c login.html login.html.ct2 \
-      && chown www-data:www-data login.html.ct2
+       && ctpp2c login.html login.html.ct2 \
+       && chown www-data:www-data login.html.ct2
 
 - name: favicon
   copy:
@@ -130,4 +179,3 @@
 #  service: name=nginx enabled=yes
 #  notify:
 #   - restart nginx
-
