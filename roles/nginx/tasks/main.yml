@@ -74,7 +74,7 @@
       && mkdir -p /run/nginx/ \
       && mkdir -p /etc/nginx/ctpp/ \
       && rm -rf /etc/nginx/ctpp/* \
-      && mkdir -p mkdir /run/nginx/ \
+      && mkdir -p /run/nginx/ \
       && mkdir -p /var/log/nginx/ \
       && chown www-data:www-data /var/log/nginx
 
@@ -126,8 +126,8 @@
 - name: reload systemd
   command: systemctl daemon-reload
 
-- name: Enable nginx
-  service: name=nginx enabled=yes
-  notify:
-   - restart nginx
+#- name: Enable nginx
+#  service: name=nginx enabled=yes
+#  notify:
+#   - restart nginx
 
