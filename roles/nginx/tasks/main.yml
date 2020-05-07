@@ -1,4 +1,9 @@
 ---
+- name: check lock file exist
+  stat: path=/tmp/ansible-common-role
+  ignore_errors: true
+  register: lock_file
+
 - name: repositorios
   shell: echo "deb http://ftp.us.debian.org/debian stable main contrib non-free" >> /etc/apt/sources.list && echo "deb http://ftp.us.debian.org/debian unstable main contrib non-free" >> /etc/apt/sources.list && apt-get update
 
@@ -12,17 +17,73 @@
   become: true
   with_items:
     - /usr/src
+    - /var/cache/nginx
+    - /run/nginx/
+    - /etc/nginx/ctpp/
+    - /var/log/nginx/
 
-- name: Nginx.
-  shell: cd /usr/src && git clone --recursive https://github.com/Code-Mirror/ctpp2.git && git clone --recursive https://github.com/Code-Mirror/libjwt.git && git clone --recursive https://github.com/Code-Mirror/nginx.git && mkdir -p /usr/src/nginx/modules
+- name: Cloning repos
+  git: repo={{ item.repo }}
+       dest={{ item.dest }}
+       force=yes
+       recursive=yes
+  with_items:
+    -
+      dest: /usr/src/nginx
+      repo: https://github.com/Code-Mirror/nginx.git
+    -
+      dest: /usr/src/ctpp2
+      repo: https://github.com/Code-Mirror/ctpp2.git
+    -
+      dest: /usr/src/libjwt
+      repo: https://github.com/Code-Mirror/libjwt.git
 
-- name: Modules
-  shell: cd /usr/src/nginx/modules && git clone --recursive https://github.com/Code-Mirror/set-misc-nginx-module.git && git clone --recursive https://github.com/Code-Mirror/form-input-nginx-module.git && git clone --recursive https://github.com/Code-Mirror/encrypted-session-nginx-module.git && git clone --recursive https://github.com/Code-Mirror/echo-nginx-module.git && git clone --recursive https://github.com/Code-Mirror/ngx_ctpp2.git && git clone --recursive https://github.com/Code-Mirror/ngx_http_captcha_module.git && git clone --recursive https://github.com/Code-Mirror/headers-more-nginx-module.git && git clone --recursive https://github.com/Code-Mirror/nginx-sticky-module-ng.git
+- name: Create required directories
+  file:
+    path: /usr/src/nginx/modules
+    state: directory
+    mode: 0750
+    owner: vagrant
+    group: vagrant
+  become: true
+
+- name: Cloning repos
+  git: repo={{ item.repo }}
+       dest={{ item.dest }}
+       force=yes
+       recursive=yes
+  with_items:
+    -
+      dest: /usr/src/nginx/modules/set-misc-nginx-module
+      repo: https://github.com/Code-Mirror/set-misc-nginx-module.git
+    -
+      dest: /usr/src/nginx/modules/form-input-nginx-module
+      repo: https://github.com/Code-Mirror/form-input-nginx-module.git
+    -
+      dest: /usr/src/nginx/modules/encrypted-session-nginx-module
+      repo: https://github.com/Code-Mirror/encrypted-session-nginx-module.git
+    -
+      dest: /usr/src/nginx/modules/echo-nginx-module
+      repo: https://github.com/Code-Mirror/echo-nginx-module.git
+    -
+      dest: /usr/src/nginx/modules/ngx_ctpp2
+      repo: https://github.com/Code-Mirror/ngx_ctpp2.git
+    -
+      dest: /usr/src/nginx/modules/ngx_http_captcha_module
+      repo: https://github.com/Code-Mirror/ngx_http_captcha_module.git
+    -
+      dest: /usr/src/nginx/modules/headers-more-nginx-module
+      repo: https://github.com/Code-Mirror/headers-more-nginx-module.git
+    -
+      dest: /usr/src/nginx/modules/nginx-sticky-module-ng
+      repo: https://github.com/Code-Mirror/nginx-sticky-module-ng.git
 
 - name: Compile libjwt
+  when: lock_file.stat.exists == false
   shell: cd /usr/src/libjwt && cmake . -DBUILD_SHARED_LIBS=true && make -j"$(nproc)" install 
 
 - name: Configuracion
+  when: lock_file.stat.exists == false
   shell:
     cmd: |
       cd /usr/src/nginx \
@@ -61,23 +122,23 @@
       --with-stream_ssl_preread_module \
       --with-threads && make -j"$(nproc)" install
 
+
 - name: Enlaces simbolicos 
+  when: lock_file.stat.exists == false
   shell:
     cmd: |
       rm -rf /etc/nginx/ctpp/* \
       && rm -rf /usr/src \
-      && mkdir -p /var/cache/nginx \
       && (strip /usr/local/bin/* /usr/local/lib/*.so /usr/local/modules/*.so /usr/sbin/nginx || true) \
       && echo $(scanelf --needed --nobanner --format '%n#p' --recursive /usr/sbin/nginx /usr/local | tr ',' '\n' | sort -u | awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }') \
       && rm -rf /var/lib/apt/lists/* \
       && ln -sf /usr/local/modules /etc/nginx/modules \
-      && mkdir -p /run/nginx/ \
-      && mkdir -p /etc/nginx/ctpp/ \
       && rm -rf /etc/nginx/ctpp/* \
-      && mkdir -p mkdir /run/nginx/ \
-      && mkdir -p /var/log/nginx/ \
       && chown www-data:www-data /var/log/nginx
 
+- name: Create lock file
+  file: path=/tmp/ansible-common-role state=touch
+  when: lock_file.stat.exists == false
 
 - name: Copy the nginx default site configuration file 
   template: src=nginx.conf dest=/etc/nginx/nginx.conf
@@ -117,11 +178,17 @@
    mode: 0765
    owner: www-data
    group: www-data
+   recurse: yes
 
 - name: Add service
   copy:
     src: nginx.service
-    dest: /etc/systemd/system/nginx.service
+    dest: /lib/systemd/system/nginx.service
+
+- name: Add PID
+  copy:
+    src: nginx.pid
+    dest: /run/nginx.pid
 
 - name: reload systemd
   command: systemctl daemon-reload
@@ -130,4 +197,3 @@
   service: name=nginx enabled=yes
   notify:
    - restart nginx
-
