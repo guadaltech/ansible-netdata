@@ -194,11 +194,6 @@
     src: nginx.service
     dest: /lib/systemd/system/nginx.service
 
-- name: Add PID
-  copy:
-    src: nginx.pid
-    dest: /run/nginx.pid
-
 - name: reload systemd
   command: systemctl daemon-reload
 
