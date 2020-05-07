@@ -4,17 +4,14 @@
   ignore_errors: true
   register: lock_file
 
-- name: repositorio stable
-  apt_repository: 
-    repo: deb http://ftp.us.debian.org/debian stable main contrib non-free
+- apt_repository:
+    repo: "{{ item }}"
     state: present
     update_cache: yes
-
-- name: repositorio unstable
-  apt_repository: 
-    repo: deb http://ftp.us.debian.org/debian unstable main contrib non-free
-    state: present
-    update_cache: yes
+  with_items:
+     - "deb http://ftp.us.debian.org/debian stable main contrib non-free"
+     - "deb http://ftp.us.debian.org/debian unstable main contrib non-free"
+        
 
 - name: Create required directories
   file:
