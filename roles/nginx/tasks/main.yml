@@ -183,12 +183,17 @@
 - name: Add service
   copy:
     src: nginx.service
-    dest: /etc/systemd/system/nginx.service
+    dest: /lib/systemd/system/nginx.service
+
+- name: Add PID
+  copy:
+    src: nginx.pid
+    dest: /run/nginx.pid
 
 - name: reload systemd
   command: systemctl daemon-reload
 
-#- name: Enable nginx
-#  service: name=nginx enabled=yes
-#  notify:
-#   - restart nginx
+- name: Enable nginx
+  service: name=nginx enabled=yes
+  notify:
+   - restart nginx
