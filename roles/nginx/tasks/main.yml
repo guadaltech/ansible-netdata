@@ -4,8 +4,17 @@
   ignore_errors: true
   register: lock_file
 
-- name: repositorios
-  shell: echo "deb http://ftp.us.debian.org/debian stable main contrib non-free" >> /etc/apt/sources.list && echo "deb http://ftp.us.debian.org/debian unstable main contrib non-free" >> /etc/apt/sources.list && apt-get update
+- name: repositorio stable
+  apt_repository: 
+    repo: deb http://ftp.us.debian.org/debian stable main contrib non-free
+    state: present
+    update_cache: yes
+
+- name: repositorio unstable
+  apt_repository: 
+    repo: deb http://ftp.us.debian.org/debian unstable main contrib non-free
+    state: present
+    update_cache: yes
 
 - name: Create required directories
   file:
@@ -184,11 +193,6 @@
   copy:
     src: nginx.service
     dest: /lib/systemd/system/nginx.service
-
-- name: Add PID
-  copy:
-    src: nginx.pid
-    dest: /run/nginx.pid
 
 - name: reload systemd
   command: systemctl daemon-reload
