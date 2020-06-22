@@ -4,7 +4,7 @@
   roles:
    - netdata
 
-- hosts: all
-  become: yes
-  roles:
-   - nginx
+ - hosts: all
+   become: yes
+   roles:
+    - nginx
