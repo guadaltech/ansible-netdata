@@ -1,4 +1,4 @@
-# Ansible Netdata
+# Ansible Netdata with notification through of mail
 
 Playbook to install and configure Netdata
 
